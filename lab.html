@@ -163,9 +163,7 @@
     <a id="back-link" href="index.html">&#8592; BACK TO PRODUCTS</a>
     <div id="instructions">ESC TO EXIT POINTER LOCK</div>
 
-    <script type="importmap">
-    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
     <script>
     (function() {
@@ -182,8 +180,7 @@
     })();
     </script>
 
-    <script type="module">
-        import * as THREE from 'three';
+    <script>
 
         const ROOM_W = 24, ROOM_H = 11, ROOM_D = 24;
         const MOVE_SPEED = 6, RUN_MULTIPLIER = 2.2, JUMP_FORCE = 6, GRAVITY = 14;
