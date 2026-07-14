@@ -687,8 +687,20 @@
         function setupControls() {
             const ss = document.getElementById('start-screen');
             const ch = document.getElementById('crosshair');
+            const btn = document.getElementById('start-btn');
 
-            ss.addEventListener('click', () => renderer.domElement.requestPointerLock());
+            function enterLab() {
+                if (document.pointerLockElement) return;
+                try {
+                    renderer.domElement.requestPointerLock();
+                } catch(e) {}
+            }
+
+            btn.addEventListener('click', e => { e.stopPropagation(); enterLab(); });
+            ss.addEventListener('click', enterLab);
+            renderer.domElement.addEventListener('click', () => {
+                if (!pointerLocked) enterLab();
+            });
 
             document.addEventListener('pointerlockchange', () => {
                 pointerLocked = !!document.pointerLockElement;
