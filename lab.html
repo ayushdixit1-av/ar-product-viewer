@@ -688,23 +688,26 @@
             const ss = document.getElementById('start-screen');
             const ch = document.getElementById('crosshair');
             const btn = document.getElementById('start-btn');
+            let labEntered = false;
 
-            function enterLab() {
-                if (document.pointerLockElement) return;
-                try {
-                    renderer.domElement.requestPointerLock();
-                } catch(e) {}
+            function hideStartScreen() {
+                if (labEntered) return;
+                labEntered = true;
+                ss.style.display = 'none';
+                ch.style.display = 'block';
+                try { renderer.domElement.requestPointerLock(); } catch(e) {}
             }
 
-            btn.addEventListener('click', e => { e.stopPropagation(); enterLab(); });
-            ss.addEventListener('click', enterLab);
+            btn.addEventListener('click', e => { e.stopPropagation(); hideStartScreen(); });
+            ss.addEventListener('click', hideStartScreen);
             renderer.domElement.addEventListener('click', () => {
-                if (!pointerLocked) enterLab();
+                if (!pointerLocked) {
+                    try { renderer.domElement.requestPointerLock(); } catch(e) {}
+                }
             });
 
             document.addEventListener('pointerlockchange', () => {
                 pointerLocked = !!document.pointerLockElement;
-                ss.style.display = pointerLocked ? 'none' : 'flex';
                 ch.style.display = pointerLocked ? 'block' : 'none';
             });
 
@@ -716,6 +719,88 @@
                 camera.rotation.y = yaw;
                 camera.rotation.x = pitch;
             });
+
+            let touchStartX = 0, touchStartY = 0, touchLookActive = false;
+            let touchMoveStartX = 0, touchMoveStartY = 0, touchMoveActive = false;
+            const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            if (isMobile) {
+                const moveZone = document.createElement('div');
+                moveZone.id = 'touch-move-zone';
+                moveZone.style.cssText = 'position:fixed;bottom:30px;left:30px;width:120px;height:120px;border:2px solid #c0d0ff44;border-radius:50%;z-index:70;display:flex;align-items:center;justify-content:center;touch-action:none;';
+                moveZone.innerHTML = '<div style="width:40px;height:40px;border:2px solid #c0d0ff88;border-radius:50%;transition:none;" id="touch-stick"></div>';
+                document.body.appendChild(moveZone);
+
+                const lookZone = document.createElement('div');
+                lookZone.id = 'touch-look-zone';
+                lookZone.style.cssText = 'position:fixed;bottom:30px;right:30px;width:120px;height:120px;border:2px solid #c0d0ff44;border-radius:50%;z-index:70;display:flex;align-items:center;justify-content:center;touch-action:none;';
+                lookZone.innerHTML = '<div style="width:12px;height:12px;background:#c0d0ff88;border-radius:50%;transition:none;" id="look-dot"></div>';
+                document.body.appendChild(lookZone);
+
+                moveZone.addEventListener('touchstart', e => {
+                    e.preventDefault();
+                    touchMoveActive = true;
+                    const t = e.touches[0];
+                    const r = moveZone.getBoundingClientRect();
+                    touchMoveStartX = t.clientX - r.left - r.width / 2;
+                    touchMoveStartY = t.clientY - r.top - r.height / 2;
+                }, { passive: false });
+
+                moveZone.addEventListener('touchmove', e => {
+                    e.preventDefault();
+                    if (!touchMoveActive) return;
+                    const t = e.touches[0];
+                    const r = moveZone.getBoundingClientRect();
+                    const dx = t.clientX - r.left - r.width / 2;
+                    const dy = t.clientY - r.top - r.height / 2;
+                    const maxDist = 40;
+                    const clampedX = Math.max(-maxDist, Math.min(maxDist, dx));
+                    const clampedY = Math.max(-maxDist, Math.min(maxDist, dy));
+                    const stick = document.getElementById('touch-stick');
+                    stick.style.transform = `translate(${clampedX}px, ${clampedY}px)`;
+                    const normX = clampedX / maxDist;
+                    const normY = clampedY / maxDist;
+                    keys['KeyW'] = normY < -0.2;
+                    keys['KeyS'] = normY > 0.2;
+                    keys['KeyA'] = normX < -0.2;
+                    keys['KeyD'] = normX > 0.2;
+                    updateKeyIndicators();
+                }, { passive: false });
+
+                const endMove = () => {
+                    touchMoveActive = false;
+                    const stick = document.getElementById('touch-stick');
+                    if (stick) stick.style.transform = 'translate(0,0)';
+                    keys['KeyW'] = keys['KeyS'] = keys['KeyA'] = keys['KeyD'] = false;
+                    updateKeyIndicators();
+                };
+                moveZone.addEventListener('touchend', endMove);
+                moveZone.addEventListener('touchcancel', endMove);
+
+                lookZone.addEventListener('touchstart', e => {
+                    e.preventDefault();
+                    touchLookActive = true;
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: false });
+
+                lookZone.addEventListener('touchmove', e => {
+                    e.preventDefault();
+                    if (!touchLookActive) return;
+                    const dx = e.touches[0].clientX - touchStartX;
+                    const dy = e.touches[0].clientY - touchStartY;
+                    yaw -= dx * 0.004;
+                    pitch -= dy * 0.004;
+                    pitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, pitch));
+                    camera.rotation.y = yaw;
+                    camera.rotation.x = pitch;
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }, { passive: false });
+
+                lookZone.addEventListener('touchend', () => { touchLookActive = false; });
+                lookZone.addEventListener('touchcancel', () => { touchLookActive = false; });
+            }
 
             document.addEventListener('keydown', e => {
                 keys[e.code] = true;
@@ -769,7 +854,7 @@
             const dt = Math.min(clock.getDelta(), 0.05);
             updateLighting(dt);
 
-            if (pointerLocked) {
+            if (labEntered) {
                 const spd = (keys['ShiftLeft'] || keys['ShiftRight']) ? MOVE_SPEED * RUN_MULTIPLIER : MOVE_SPEED;
                 const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
                 const rgt = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
