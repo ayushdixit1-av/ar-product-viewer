@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AR Product Viewer</title>
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=5">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
 </head>
 <body>
@@ -13,92 +13,28 @@
         <section id="landing" class="page active">
             <canvas id="hero-canvas"></canvas>
             <div class="landing-grid-overlay"></div>
-            <div class="landing-ring landing-ring-1"></div>
-            <div class="landing-ring landing-ring-2"></div>
             <div class="landing-glow landing-glow-1"></div>
             <div class="landing-glow landing-glow-2"></div>
             <div class="landing-glow landing-glow-3"></div>
-            <div class="noise-overlay"></div>
-
-            <nav class="hero-nav">
-                <div class="nav-logo">
-                    <svg width="28" height="28" viewBox="0 0 56 56" fill="none">
-                        <rect width="56" height="56" rx="14" fill="url(#navGrad)"/>
-                        <defs><linearGradient id="navGrad" x1="0" y1="0" x2="56" y2="56"><stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
-                        <path d="M16 40V22L28 12L40 22V40H32V28H24V40H16Z" fill="white" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-                    </svg>
-                    <span class="nav-brand">ARVIEW</span>
-                </div>
-                <a href="lab.html" class="nav-lab-link">
-                    <span class="nav-lab-dot"></span>
-                    Cyberpunk Lab
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                </a>
-            </nav>
 
             <div class="landing-content">
-                <div class="hero-badge">
-                    <span class="badge-dot"></span>
-                    AR-POWERED SHOPPING
+                <div class="logo-glow">
+                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                        <rect width="56" height="56" rx="14" fill="url(#logoGrad)"/>
+                        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="56" y2="56"><stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
+                        <path d="M16 40V22L28 12L40 22V40H32V28H24V40H16Z" fill="white" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-
-                <h1 class="hero-title">
-                    See It In<br>
-                    <span class="gradient-text">Your Space</span>
-                </h1>
-
-                <p class="hero-sub">Point your camera, place the product, and see how it looks in your room — true to size, true to life.</p>
-
-                <div class="hero-actions">
-                    <button class="btn btn-primary btn-xl hero-btn-main" onclick="navigateTo('catalog')">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        Browse Products
-                    </button>
-                    <a href="lab.html" class="btn btn-glass btn-xl hero-btn-secondary" style="text-decoration:none;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6v4H9z"/><path d="M5 9h14l-1 10H6L5 9z"/><circle cx="12" cy="16" r="1"/></svg>
-                        Enter Lab
-                    </a>
-                </div>
-            </div>
-
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <span class="stat-number" data-target="24">0</span>
-                    <span class="stat-label">Products</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <span class="stat-number" data-target="8">0</span>
-                    <span class="stat-label">3D Models</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <span class="stat-number" data-target="360">&deg;</span>
-                    <span class="stat-label">View</span>
-                </div>
-            </div>
-
-            <div class="hero-bottom-features">
-                <div class="hbf-item">
-                    <div class="hbf-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    </div>
-                    <span>WebXR AR</span>
-                </div>
-                <div class="hbf-dot"></div>
-                <div class="hbf-item">
-                    <div class="hbf-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                    </div>
-                    <span>3D Preview</span>
-                </div>
-                <div class="hbf-dot"></div>
-                <div class="hbf-item">
-                    <div class="hbf-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8l5-3v14l-5-3z"/></svg>
-                    </div>
-                    <span>True to Size</span>
-                </div>
+                <h1>See It In <span class="gradient-text">Your Space</span></h1>
+                <p class="landing-sub">Point your camera, place the product, and see how it looks in your room — true to size.</p>
+                <button class="btn btn-primary btn-xl pulse-glow" onclick="navigateTo('catalog')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Browse Products
+                </button>
+                <a href="lab.html" class="btn btn-secondary btn-xl" style="margin-top: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 3h6v4H9z"/><path d="M5 9h14l-1 10H6L5 9z"/></svg>
+                    Enter Lab
+                </a>
             </div>
         </section>
 
@@ -238,112 +174,82 @@
         var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x06060e, 1);
 
         var scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x06060e, 0.035);
-
-        var camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 10);
+        var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 8;
 
         var clock = new THREE.Clock();
 
-        var ambientLight = new THREE.AmbientLight(0x445588, 0.4);
+        var ambientLight = new THREE.AmbientLight(0x667799, 0.6);
         scene.add(ambientLight);
-        var pointLight1 = new THREE.PointLight(0x6C5CE7, 4, 40);
-        pointLight1.position.set(6, 6, 6);
+        var pointLight1 = new THREE.PointLight(0x6C5CE7, 2.5, 30);
+        pointLight1.position.set(5, 5, 5);
         scene.add(pointLight1);
-        var pointLight2 = new THREE.PointLight(0xa855f7, 3, 35);
-        pointLight2.position.set(-6, -4, 4);
+        var pointLight2 = new THREE.PointLight(0xa855f7, 2, 25);
+        pointLight2.position.set(-5, -3, 3);
         scene.add(pointLight2);
-        var pointLight3 = new THREE.PointLight(0xec4899, 2.5, 30);
-        pointLight3.position.set(0, 5, -6);
+        var pointLight3 = new THREE.PointLight(0xec4899, 1.5, 20);
+        pointLight3.position.set(0, 4, -5);
         scene.add(pointLight3);
-        var pointLight4 = new THREE.PointLight(0x22d3ee, 1.5, 25);
-        pointLight4.position.set(-3, -6, 8);
-        scene.add(pointLight4);
 
         var shapes = [];
-
-        var wirePurple = function(o) { return new THREE.MeshPhongMaterial({ color: 0x6C5CE7, wireframe: true, transparent: true, opacity: o||0.2 }); };
-        var glassPurple = function(o) { return new THREE.MeshPhongMaterial({ color: 0xa855f7, transparent: true, opacity: o||0.08, shininess: 120, specular: 0x6C5CE7 }); };
-        var glassPink = function(o) { return new THREE.MeshPhongMaterial({ color: 0xec4899, transparent: true, opacity: o||0.1, shininess: 120, specular: 0xec4899 }); };
-        var glassCyan = function(o) { return new THREE.MeshPhongMaterial({ color: 0x22d3ee, transparent: true, opacity: o||0.08, shininess: 120, specular: 0x22d3ee }); };
-        var edgePurple = function() { return new THREE.MeshPhongMaterial({ color: 0x6C5CE7, transparent: true, opacity: 0.15, shininess: 80, specular: 0x8866ff, side: THREE.EdgesMode }); };
+        var wireframeMat = new THREE.MeshPhongMaterial({ color: 0x6C5CE7, wireframe: true, transparent: true, opacity: 0.25 });
+        var glassMat = new THREE.MeshPhongMaterial({ color: 0xa855f7, transparent: true, opacity: 0.12, shininess: 100, specular: 0x6C5CE7 });
+        var accentMat = new THREE.MeshPhongMaterial({ color: 0xec4899, transparent: true, opacity: 0.15, shininess: 100, specular: 0xec4899 });
 
         var geos = [
-            { g: new THREE.IcosahedronGeometry(1.4, 1), m: wirePurple(0.15) },
-            { g: new THREE.OctahedronGeometry(1.0, 0), m: glassPurple(0.06) },
-            { g: new THREE.TorusGeometry(1.0, 0.28, 12, 48), m: glassPink(0.07) },
-            { g: new THREE.TorusKnotGeometry(0.7, 0.22, 64, 12), m: wirePurple(0.12) },
-            { g: new THREE.DodecahedronGeometry(0.8, 0), m: glassCyan(0.06) },
-            { g: new THREE.BoxGeometry(1, 1, 1), m: edgePurple() },
-            { g: new THREE.TetrahedronGeometry(0.9, 0), m: glassPink(0.08) },
-            { g: new THREE.ConeGeometry(0.6, 1.3, 5), m: glassPurple(0.06) },
-            { g: new THREE.IcosahedronGeometry(0.6, 0), m: glassCyan(0.1) },
-            { g: new THREE.RingGeometry(0.5, 1.2, 24), m: wirePurple(0.18) },
+            new THREE.IcosahedronGeometry(1.2, 1),
+            new THREE.OctahedronGeometry(0.9, 0),
+            new THREE.TorusGeometry(0.8, 0.25, 8, 24),
+            new THREE.TorusKnotGeometry(0.6, 0.2, 48, 8),
+            new THREE.DodecahedronGeometry(0.7, 0),
+            new THREE.BoxGeometry(1, 1, 1),
+            new THREE.TetrahedronGeometry(0.8, 0),
+            new THREE.ConeGeometry(0.6, 1.2, 6),
         ];
+        var mats = [wireframeMat, glassMat, accentMat];
 
-        for (var i = 0; i < 22; i++) {
-            var geoData = geos[Math.floor(Math.random() * geos.length)];
-            var mesh = new THREE.Mesh(geoData.g, geoData.m.clone());
-            var sc = 0.3 + Math.random() * 0.8;
-            mesh.scale.set(sc, sc, sc);
+        for (var i = 0; i < 18; i++) {
+            var geo = geos[Math.floor(Math.random() * geos.length)];
+            var mat = mats[Math.floor(Math.random() * mats.length)].clone();
+            var mesh = new THREE.Mesh(geo, mat);
+            var scale = 0.3 + Math.random() * 0.8;
+            mesh.scale.set(scale, scale, scale);
             mesh.position.set(
-                (Math.random() - 0.5) * 28,
-                (Math.random() - 0.5) * 18,
-                (Math.random() - 0.5) * 14 - 3
+                (Math.random() - 0.5) * 22,
+                (Math.random() - 0.5) * 16,
+                (Math.random() - 0.5) * 12 - 2
             );
             mesh.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
             scene.add(mesh);
             shapes.push({
                 mesh: mesh,
-                rx: (Math.random() - 0.5) * 0.4,
-                ry: (Math.random() - 0.5) * 0.4,
-                rz: (Math.random() - 0.5) * 0.2,
-                fs: 0.2 + Math.random() * 0.4,
-                fa: 0.15 + Math.random() * 0.35,
-                by: mesh.position.y,
-                ph: Math.random() * Math.PI * 2
+                rotSpeed: { x: (Math.random() - 0.5) * 0.5, y: (Math.random() - 0.5) * 0.5, z: (Math.random() - 0.5) * 0.3 },
+                floatSpeed: 0.3 + Math.random() * 0.5,
+                floatAmp: 0.2 + Math.random() * 0.4,
+                baseY: mesh.position.y,
+                phase: Math.random() * Math.PI * 2,
             });
         }
 
-        var ringGeo = new THREE.RingGeometry(3.5, 3.8, 64);
-        var ringMat = new THREE.MeshPhongMaterial({ color: 0x6C5CE7, transparent: true, opacity: 0.06, side: THREE.DoubleSide, shininess: 60 });
-        var ring1 = new THREE.Mesh(ringGeo, ringMat);
-        ring1.position.set(2, 0, -6);
-        scene.add(ring1);
-        var ring2Mat = new THREE.MeshPhongMaterial({ color: 0xa855f7, transparent: true, opacity: 0.04, side: THREE.DoubleSide });
-        var ring2 = new THREE.Mesh(new THREE.RingGeometry(5.0, 5.3, 64), ring2Mat);
-        ring2.position.set(-3, 1, -10);
-        scene.add(ring2);
-
-        var linePoints = [];
-        for (var i = 0; i < 80; i++) {
-            linePoints.push(new THREE.Vector3((Math.random()-0.5)*30, (Math.random()-0.5)*20, (Math.random()-0.5)*16 - 4));
-        }
-        var lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
-        var lineMat = new THREE.PointsMaterial({ color: 0x6C5CE7, size: 0.035, transparent: true, opacity: 0.5, sizeAttenuation: true });
-        var starField = new THREE.Points(lineGeo, lineMat);
-        scene.add(starField);
-
-        var pCount = 200;
+        var particleCount = 160;
         var pGeo = new THREE.BufferGeometry();
-        var pPos = new Float32Array(pCount * 3);
-        for (var i = 0; i < pCount; i++) {
-            pPos[i*3] = (Math.random()-0.5)*30;
-            pPos[i*3+1] = (Math.random()-0.5)*20;
-            pPos[i*3+2] = (Math.random()-0.5)*16 - 4;
+        var positions = new Float32Array(particleCount * 3);
+        for (var i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 28;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 16 - 2;
         }
-        pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-        var pMat = new THREE.PointsMaterial({ color: 0xa855f7, size: 0.025, transparent: true, opacity: 0.4, sizeAttenuation: true });
+        pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        var pMat = new THREE.PointsMaterial({ color: 0x6C5CE7, size: 0.04, transparent: true, opacity: 0.6, sizeAttenuation: true });
         var particles = new THREE.Points(pGeo, pMat);
         scene.add(particles);
 
-        var mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        var mouse = { x: 0, y: 0 };
         document.addEventListener('mousemove', function(e) {
-            mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.ty = (e.clientY / window.innerHeight) * 2 - 1;
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
         });
 
         window.addEventListener('resize', function() {
@@ -356,58 +262,30 @@
             requestAnimationFrame(animate);
             var t = clock.getElapsedTime();
 
-            mouse.x += (mouse.tx - mouse.x) * 0.03;
-            mouse.y += (mouse.ty - mouse.y) * 0.03;
-
             for (var i = 0; i < shapes.length; i++) {
                 var s = shapes[i];
-                s.mesh.rotation.x += s.rx * 0.008;
-                s.mesh.rotation.y += s.ry * 0.008;
-                s.mesh.rotation.z += s.rz * 0.008;
-                s.mesh.position.y = s.by + Math.sin(t * s.fs + s.ph) * s.fa;
+                s.mesh.rotation.x += s.rotSpeed.x * 0.01;
+                s.mesh.rotation.y += s.rotSpeed.y * 0.01;
+                s.mesh.rotation.z += s.rotSpeed.z * 0.01;
+                s.mesh.position.y = s.baseY + Math.sin(t * s.floatSpeed + s.phase) * s.floatAmp;
             }
 
-            ring1.rotation.z = t * 0.05;
-            ring1.rotation.x = Math.sin(t * 0.15) * 0.1;
-            ring2.rotation.z = -t * 0.03;
-            ring2.rotation.y = Math.cos(t * 0.12) * 0.08;
+            particles.rotation.y = t * 0.03;
+            particles.rotation.x = Math.sin(t * 0.1) * 0.05;
 
-            particles.rotation.y = t * 0.015;
-            starField.rotation.y = t * 0.008;
-
-            camera.position.x += (mouse.x * 2.0 - camera.position.x) * 0.015;
-            camera.position.y += (-mouse.y * 1.0 - camera.position.y) * 0.015;
+            camera.position.x += (mouse.x * 1.2 - camera.position.x) * 0.02;
+            camera.position.y += (-mouse.y * 0.6 - camera.position.y) * 0.02;
             camera.lookAt(0, 0, 0);
 
-            pointLight1.position.x = Math.sin(t * 0.3) * 7;
-            pointLight1.position.y = Math.cos(t * 0.25) * 4;
-            pointLight2.position.x = Math.cos(t * 0.28) * 5;
-            pointLight2.position.z = Math.sin(t * 0.2) * 5;
-            pointLight3.position.x = Math.sin(t * 0.35 + 2) * 4;
+            pointLight1.position.x = Math.sin(t * 0.4) * 5;
+            pointLight1.position.y = Math.cos(t * 0.3) * 3;
+            pointLight2.position.x = Math.cos(t * 0.35) * 4;
 
             renderer.render(scene, camera);
         }
         animate();
-
-        var counters = document.querySelectorAll('.stat-number');
-        var counted = false;
-        function animateCounters() {
-            if (counted) return;
-            counted = true;
-            counters.forEach(function(el) {
-                var target = parseInt(el.getAttribute('data-target'));
-                var current = 0;
-                var step = Math.ceil(target / 40);
-                var iv = setInterval(function() {
-                    current += step;
-                    if (current >= target) { current = target; clearInterval(iv); }
-                    el.textContent = current;
-                }, 30);
-            });
-        }
-        setTimeout(animateCounters, 800);
     })();
     </script>
-    <script type="module" src="js/app.js?v=4"></script>
+    <script type="module" src="js/app.js?v=5"></script>
 </body>
 </html>
