@@ -59,6 +59,9 @@ body {
 .btn-primary { background:linear-gradient(135deg,var(--primary),#7c3aed); color:white; }
 .btn-primary:hover { filter:brightness(1.1); }
 .btn-primary:active { transform:scale(0.97); }
+.btn-secondary { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+.btn-secondary:hover { border-color:var(--primary-light); color:white; background:rgba(108,92,231,0.08); }
+.btn-secondary:active { transform:scale(0.97); }
 .btn-xl { padding:1rem 2.2rem; font-size:1.05rem; border-radius:var(--radius-lg); }
 .btn-block { width:100%; }
 .btn-back { background:none; border:none; color:var(--text); cursor:pointer; padding:0.5rem; border-radius:10px; transition:var(--transition); }
