@@ -4,32 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AR Product Viewer</title>
-    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=3">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
 </head>
 <body>
     <div id="app">
         <!-- Landing -->
         <section id="landing" class="page active">
-            <div class="landing-bg"></div>
+            <canvas id="hero-canvas"></canvas>
+            <div class="landing-grid-overlay"></div>
+            <div class="landing-glow landing-glow-1"></div>
+            <div class="landing-glow landing-glow-2"></div>
+            <div class="landing-glow landing-glow-3"></div>
+
             <div class="landing-content">
-                <div class="logo-glow">
-                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                        <rect width="56" height="56" rx="14" fill="url(#logoGrad)"/>
-                        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="56" y2="56"><stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
-                        <path d="M16 40V22L28 12L40 22V40H32V28H24V40H16Z" fill="white" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-                    </svg>
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    AR-POWERED SHOPPING
                 </div>
-                <h1>See It In <span class="gradient-text">Your Space</span></h1>
-                <p class="landing-sub">Point your camera, place the product, and see how it looks in your room — true to size.</p>
-                <button class="btn btn-primary btn-xl pulse-glow" onclick="navigateTo('catalog')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    Browse Products
-                </button>
-                <a href="lab.html" class="btn btn-secondary btn-xl" style="margin-top: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 3h6v4H9z"/><path d="M5 9h14l-1 10H6L5 9z"/></svg>
-                    Enter Lab
-                </a>
+
+                <h1 class="hero-title">
+                    See It In<br>
+                    <span class="gradient-text">Your Space</span>
+                </h1>
+
+                <p class="hero-sub">Point your camera, place the product, and see how it looks in your room — true to size.</p>
+
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-xl hero-btn-main" onclick="navigateTo('catalog')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Browse Products
+                    </button>
+                    <a href="lab.html" class="btn btn-glass btn-xl hero-btn-secondary" style="text-decoration:none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6v4H9z"/><path d="M5 9h14l-1 10H6L5 9z"/><circle cx="12" cy="16" r="1"/></svg>
+                        Enter Lab
+                    </a>
+                </div>
+
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <div class="feature-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        </div>
+                        <div class="feature-text">
+                            <span class="feature-title">WebXR AR</span>
+                            <span class="feature-desc">Place in your room</span>
+                        </div>
+                    </div>
+                    <div class="feature-divider"></div>
+                    <div class="hero-feature">
+                        <div class="feature-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        </div>
+                        <div class="feature-text">
+                            <span class="feature-title">3D Preview</span>
+                            <span class="feature-desc">Interactive models</span>
+                        </div>
+                    </div>
+                    <div class="feature-divider"></div>
+                    <div class="hero-feature">
+                        <div class="feature-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8l5-3v14l-5-3z"/></svg>
+                        </div>
+                        <div class="feature-text">
+                            <span class="feature-title">True to Size</span>
+                            <span class="feature-desc">Real measurements</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-scroll-hint">
+                    <div class="scroll-line"></div>
+                </div>
             </div>
         </section>
 
@@ -160,6 +206,127 @@
         </section>
     </div>
 
-    <script type="module" src="js/app.js?v=2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script>
+    (function() {
+        var canvas = document.getElementById('hero-canvas');
+        if (!canvas || typeof THREE === 'undefined') return;
+
+        var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 8;
+
+        var clock = new THREE.Clock();
+
+        var ambientLight = new THREE.AmbientLight(0x667799, 0.6);
+        scene.add(ambientLight);
+        var pointLight1 = new THREE.PointLight(0x6C5CE7, 2.5, 30);
+        pointLight1.position.set(5, 5, 5);
+        scene.add(pointLight1);
+        var pointLight2 = new THREE.PointLight(0xa855f7, 2, 25);
+        pointLight2.position.set(-5, -3, 3);
+        scene.add(pointLight2);
+        var pointLight3 = new THREE.PointLight(0xec4899, 1.5, 20);
+        pointLight3.position.set(0, 4, -5);
+        scene.add(pointLight3);
+
+        var shapes = [];
+        var wireframeMat = new THREE.MeshPhongMaterial({ color: 0x6C5CE7, wireframe: true, transparent: true, opacity: 0.25 });
+        var glassMat = new THREE.MeshPhongMaterial({ color: 0xa855f7, transparent: true, opacity: 0.12, shininess: 100, specular: 0x6C5CE7 });
+        var accentMat = new THREE.MeshPhongMaterial({ color: 0xec4899, transparent: true, opacity: 0.15, shininess: 100, specular: 0xec4899 });
+
+        var geos = [
+            new THREE.IcosahedronGeometry(1.2, 1),
+            new THREE.OctahedronGeometry(0.9, 0),
+            new THREE.TorusGeometry(0.8, 0.25, 8, 24),
+            new THREE.TorusKnotGeometry(0.6, 0.2, 48, 8),
+            new THREE.DodecahedronGeometry(0.7, 0),
+            new THREE.BoxGeometry(1, 1, 1),
+            new THREE.TetrahedronGeometry(0.8, 0),
+            new THREE.ConeGeometry(0.6, 1.2, 6),
+        ];
+        var mats = [wireframeMat, glassMat, accentMat];
+
+        for (var i = 0; i < 14; i++) {
+            var geo = geos[Math.floor(Math.random() * geos.length)];
+            var mat = mats[Math.floor(Math.random() * mats.length)].clone();
+            var mesh = new THREE.Mesh(geo, mat);
+            var scale = 0.3 + Math.random() * 0.7;
+            mesh.scale.set(scale, scale, scale);
+            mesh.position.set(
+                (Math.random() - 0.5) * 18,
+                (Math.random() - 0.5) * 12,
+                (Math.random() - 0.5) * 10 - 2
+            );
+            mesh.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
+            scene.add(mesh);
+            shapes.push({
+                mesh: mesh,
+                rotSpeed: { x: (Math.random() - 0.5) * 0.5, y: (Math.random() - 0.5) * 0.5, z: (Math.random() - 0.5) * 0.3 },
+                floatSpeed: 0.3 + Math.random() * 0.5,
+                floatAmp: 0.2 + Math.random() * 0.4,
+                baseY: mesh.position.y,
+                phase: Math.random() * Math.PI * 2,
+            });
+        }
+
+        var particleCount = 120;
+        var pGeo = new THREE.BufferGeometry();
+        var positions = new Float32Array(particleCount * 3);
+        for (var i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 24;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 16;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 14 - 2;
+        }
+        pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        var pMat = new THREE.PointsMaterial({ color: 0x6C5CE7, size: 0.04, transparent: true, opacity: 0.6, sizeAttenuation: true });
+        var particles = new THREE.Points(pGeo, pMat);
+        scene.add(particles);
+
+        var mouse = { x: 0, y: 0 };
+        document.addEventListener('mousemove', function(e) {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
+        });
+
+        window.addEventListener('resize', function() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            var t = clock.getElapsedTime();
+
+            for (var i = 0; i < shapes.length; i++) {
+                var s = shapes[i];
+                s.mesh.rotation.x += s.rotSpeed.x * 0.01;
+                s.mesh.rotation.y += s.rotSpeed.y * 0.01;
+                s.mesh.rotation.z += s.rotSpeed.z * 0.01;
+                s.mesh.position.y = s.baseY + Math.sin(t * s.floatSpeed + s.phase) * s.floatAmp;
+            }
+
+            particles.rotation.y = t * 0.03;
+            particles.rotation.x = Math.sin(t * 0.1) * 0.05;
+
+            camera.position.x += (mouse.x * 1.2 - camera.position.x) * 0.02;
+            camera.position.y += (-mouse.y * 0.6 - camera.position.y) * 0.02;
+            camera.lookAt(0, 0, 0);
+
+            pointLight1.position.x = Math.sin(t * 0.4) * 5;
+            pointLight1.position.y = Math.cos(t * 0.3) * 3;
+            pointLight2.position.x = Math.cos(t * 0.35) * 4;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    })();
+    </script>
+    <script type="module" src="js/app.js?v=3"></script>
 </body>
 </html>
