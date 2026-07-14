@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Lab - AR Product Viewer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; background: #050510; font-family: 'Courier New', monospace; color: #aaccff; }
+        canvas { display: block; }
+
+        #start-screen {
+            position: fixed; inset: 0; z-index: 100;
+            background: #050510;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        #start-screen h1 {
+            font-size: 2.5rem; color: #aaccff; text-shadow: 0 0 20px #6c5ce7, 0 0 60px #6c5ce788;
+            letter-spacing: 0.3em; margin-bottom: 1rem;
+        }
+        #start-screen .subtitle {
+            color: #6c5ce7; font-size: 0.85rem; letter-spacing: 0.5em; margin-bottom: 3rem;
+        }
+        #start-btn {
+            background: transparent; border: 2px solid #aaccff; color: #aaccff;
+            padding: 16px 48px; font-size: 1.1rem; font-family: 'Courier New', monospace;
+            letter-spacing: 0.3em; cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.3s;
+        }
+        #start-btn:hover {
+            background: #aaccff15; box-shadow: 0 0 30px #aaccff44, inset 0 0 30px #aaccff11;
+            text-shadow: 0 0 10px #aaccff;
+        }
+        #start-btn::before {
+            content: ''; position: absolute; top: -2px; left: -100%; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, #aaccff, transparent);
+            animation: scanline 2s linear infinite;
+        }
+        @keyframes scanline { to { left: 100%; } }
+        #start-screen .controls-hint {
+            margin-top: 3rem; color: #55667780; font-size: 0.7rem; letter-spacing: 0.2em; text-align: center; line-height: 2;
+        }
+
+        #crosshair {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 50; pointer-events: none; display: none;
+        }
+        #crosshair::before, #crosshair::after {
+            content: ''; position: absolute; background: #aaccff88;
+        }
+        #crosshair::before { width: 2px; height: 16px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+        #crosshair::after { width: 16px; height: 2px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+
+        #hud {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50; pointer-events: none;
+            padding: 16px 20px; display: flex; justify-content: space-between;
+        }
+        .hud-left, .hud-right { display: flex; flex-direction: column; gap: 4px; }
+        .hud-left { align-items: flex-start; }
+        .hud-right { align-items: flex-end; }
+        .hud-text { font-size: 0.7rem; color: #556688; letter-spacing: 0.15em; }
+        .hud-value { color: #aaccff; font-size: 0.75rem; }
+
+        #light-toggle {
+            position: fixed; top: 16px; right: 20px; z-index: 60;
+            background: #0a0a1a; border: 1px solid #6c5ce744; color: #aaccff;
+            padding: 8px 16px; font-family: 'Courier New', monospace; font-size: 0.7rem;
+            letter-spacing: 0.2em; cursor: pointer; pointer-events: all;
+            transition: all 0.3s;
+        }
+        #light-toggle:hover { border-color: #aaccff; box-shadow: 0 0 15px #aaccff33; }
+        #light-toggle.off { color: #ff6b9d; border-color: #ff6b9d44; }
+        #light-toggle.off:hover { border-color: #ff6b9d; box-shadow: 0 0 15px #ff6b9d33; }
+
+        #key-indicators {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 50; display: flex; gap: 6px; pointer-events: none;
+        }
+        .key-box {
+            width: 42px; height: 42px; border: 1px solid #33445544; display: flex;
+            align-items: center; justify-content: center; font-size: 0.75rem;
+            color: #33445566; transition: all 0.1s; font-family: 'Courier New', monospace;
+        }
+        .key-box.active {
+            border-color: #aaccff; color: #aaccff; background: #aaccff11;
+            box-shadow: 0 0 15px #aaccff33;
+        }
+        #key-w { transform: translateY(-24px); }
+
+        #label-tooltip {
+            position: fixed; z-index: 55; pointer-events: none; display: none;
+            background: #0a0a1aDD; border: 1px solid #6c5ce788; padding: 8px 14px;
+            font-size: 0.7rem; color: #aaccff; letter-spacing: 0.15em;
+            white-space: nowrap; box-shadow: 0 0 20px #6c5ce733;
+        }
+
+        #back-link {
+            position: fixed; bottom: 20px; left: 20px; z-index: 60;
+            color: #556688; text-decoration: none; font-size: 0.7rem;
+            letter-spacing: 0.15em; font-family: 'Courier New', monospace;
+            transition: color 0.3s;
+        }
+        #back-link:hover { color: #aaccff; }
+
+        #instructions {
+            position: fixed; bottom: 20px; right: 20px; z-index: 50;
+            font-size: 0.6rem; color: #33445566; letter-spacing: 0.1em;
+            text-align: right; line-height: 1.8; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <h1>CYBERPUNK LAB</h1>
+        <div class="subtitle">RESEARCH FACILITY // SECTOR 7</div>
+        <button id="start-btn">CLICK TO ENTER</button>
+        <div class="controls-hint">
+            WASD - MOVE &nbsp;&nbsp; MOUSE - LOOK &nbsp;&nbsp; SHIFT - RUN<br>
+            SPACE - JUMP &nbsp;&nbsp; L - TOGGLE LIGHTS &nbsp;&nbsp; ESC - EXIT
+        </div>
+    </div>
+
+    <div id="crosshair"></div>
+    <div id="label-tooltip"></div>
+
+    <div id="hud">
+        <div class="hud-left">
+            <div class="hud-text">FPS <span class="hud-value" id="fps">0</span></div>
+            <div class="hud-text">POS <span class="hud-value" id="pos">0.0, 0.0, 0.0</span></div>
+        </div>
+        <div class="hud-right">
+            <div class="hud-text" id="light-status">LIGHTS: ON</div>
+        </div>
+    </div>
+
+    <button id="light-toggle">LIGHTS ON/OFF</button>
+
+    <div id="key-indicators">
+        <div class="key-box" id="key-a">A</div>
+        <div class="key-box" id="key-w" style="transform: translateY(-24px)">W</div>
+        <div class="key-box" id="key-s">S</div>
+        <div class="key-box" id="key-d">D</div>
+        <div class="key-box" id="key-shift" style="width: 56px; font-size: 0.55rem;">SHIFT</div>
+        <div class="key-box" id="key-space" style="width: 56px; font-size: 0.55rem;">SPACE</div>
+    </div>
+
+    <a id="back-link" href="index.html">&#8592; BACK TO PRODUCTS</a>
+    <div id="instructions">ESC TO EXIT POINTER LOCK</div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const ROOM_W = 20, ROOM_H = 10, ROOM_D = 20;
+        const MOVE_SPEED = 5, RUN_MULTIPLIER = 2, JUMP_FORCE = 5, GRAVITY = 12;
+        const EYE_HEIGHT = 1.7;
+
+        let scene, camera, renderer, clock;
+        let lightsOn = true;
+        let velocity = new THREE.Vector3();
+        let onGround = true;
+        const keys = {};
+        let yaw = 0, pitch = 0;
+        let pointerLocked = false;
+        const raycaster = new THREE.Raycaster();
+        const interactables = [];
+        let canJump = true;
+
+        const ambientLight = new THREE.AmbientLight(0x334466, 1.0);
+        const hemiLight = new THREE.HemisphereLight(0x8899bb, 0x222233, 1.2);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        const ceilingLights = [];
+        const accentLights = [];
+        const ceilingPanelMeshes = [];
+        let fogDensity;
+
+        const keysDown = new Set();
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050510);
+            scene.fog = new THREE.FogExp2(0x050510, 0.015);
+            fogDensity = 0.015;
+            clock = new THREE.Clock();
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, EYE_HEIGHT, 8);
+            camera.rotation.order = 'YXZ';
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            document.body.appendChild(renderer.domElement);
+
+            setupLighting();
+            createRoom();
+            createLabBenches();
+            createEquipment();
+
+            window.addEventListener('resize', onResize);
+            setupControls();
+            animate();
+        }
+
+        function setupLighting() {
+            scene.add(ambientLight);
+            scene.add(hemiLight);
+
+            dirLight.position.set(5, ROOM_H - 1, 5);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.set(2048, 2048);
+            dirLight.shadow.camera.left = -12;
+            dirLight.shadow.camera.right = 12;
+            dirLight.shadow.camera.top = 12;
+            dirLight.shadow.camera.bottom = -12;
+            dirLight.shadow.camera.near = 0.5;
+            dirLight.shadow.camera.far = 30;
+            dirLight.shadow.bias = -0.001;
+            scene.add(dirLight);
+
+            const ceilPositions = [
+                [-6, ROOM_H - 0.3, -6], [6, ROOM_H - 0.3, -6],
+                [0, ROOM_H - 0.3, 0],
+                [-6, ROOM_H - 0.3, 6], [6, ROOM_H - 0.3, 6],
+            ];
+            ceilPositions.forEach(pos => {
+                const pl = new THREE.PointLight(0xaaccff, 2.0, 25);
+                pl.position.set(...pos);
+                pl.castShadow = true;
+                pl.shadow.mapSize.set(512, 512);
+                scene.add(pl);
+                ceilingLights.push(pl);
+
+                const panelGeo = new THREE.BoxGeometry(1.5, 0.05, 0.6);
+                const panelMat = new THREE.MeshStandardMaterial({
+                    color: 0xaaccff, emissive: 0xaaccff, emissiveIntensity: 0.8,
+                    transparent: true, opacity: 0.9,
+                });
+                const panel = new THREE.Mesh(panelGeo, panelMat);
+                panel.position.set(pos[0], ROOM_H - 0.05, pos[2]);
+                scene.add(panel);
+                ceilingPanelMeshes.push({ mesh: panel, mat: panelMat });
+            });
+
+            const accentDefs = [
+                { color: 0x00ff88, pos: [-ROOM_W / 2 + 0.2, 3, 0], intensity: 1.5 },
+                { color: 0xff6b9d, pos: [ROOM_W / 2 - 0.2, 4, -3], intensity: 1.5 },
+                { color: 0x4488ff, pos: [0, 3, -ROOM_D / 2 + 0.2], intensity: 1.2 },
+            ];
+            accentDefs.forEach(d => {
+                const al = new THREE.PointLight(d.color, d.intensity, 12);
+                al.position.set(...d.pos);
+                scene.add(al);
+                accentLights.push(al);
+
+                const glowGeo = new THREE.SphereGeometry(0.08, 8, 8);
+                const glowMat = new THREE.MeshBasicMaterial({ color: d.color });
+                const glow = new THREE.Mesh(glowGeo, glowMat);
+                glow.position.set(...d.pos);
+                scene.add(glow);
+            });
+        }
+
+        function toggleLights() {
+            lightsOn = !lightsOn;
+            const t = 0.4;
+            if (lightsOn) {
+                ambientLight.intensity = THREE.MathUtils.lerp(0.05, 1.0, t);
+                hemiLight.intensity = THREE.MathUtils.lerp(0.03, 1.2, t);
+                dirLight.intensity = THREE.MathUtils.lerp(0, 0.8, t);
+                ceilingLights.forEach(l => l.intensity = THREE.MathUtils.lerp(0.02, 2.0, t));
+                accentLights.forEach(l => l.intensity = THREE.MathUtils.lerp(0.02, l.userData?.baseIntensity || 1.5, t));
+                scene.fog.density = THREE.MathUtils.lerp(scene.fog.density, 0.015, t);
+                scene.background.set(0x050510);
+                renderer.toneMappingExposure = THREE.MathUtils.lerp(renderer.toneMappingExposure, 1.0, t);
+                ceilingPanelMeshes.forEach(p => {
+                    p.mat.emissiveIntensity = THREE.MathUtils.lerp(p.mat.emissiveIntensity, 0.8, t);
+                    p.mat.opacity = THREE.MathUtils.lerp(p.mat.opacity, 0.9, t);
+                });
+                document.getElementById('light-status').textContent = 'LIGHTS: ON';
+                document.getElementById('light-status').style.color = '#aaccff';
+                document.getElementById('light-toggle').classList.remove('off');
+            } else {
+                ambientLight.intensity = 0.05;
+                hemiLight.intensity = 0.03;
+                dirLight.intensity = 0;
+                ceilingLights.forEach(l => l.intensity = 0.02);
+                accentLights.forEach(l => l.intensity = 0.02);
+                scene.fog.density = 0.05;
+                scene.background.set(0x020208);
+                renderer.toneMappingExposure = 0.3;
+                ceilingPanelMeshes.forEach(p => {
+                    p.mat.emissiveIntensity = 0.05;
+                    p.mat.opacity = 0.3;
+                });
+                document.getElementById('light-status').textContent = 'LIGHTS: OFF';
+                document.getElementById('light-status').style.color = '#ff6b9d';
+                document.getElementById('light-toggle').classList.add('off');
+            }
+        }
+
+        function createRoom() {
+            const wallMat = new THREE.MeshStandardMaterial({ color: 0x0a0a1a, roughness: 0.9, metalness: 0.1 });
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x080818, roughness: 0.7, metalness: 0.2 });
+
+            const floorGeo = new THREE.PlaneGeometry(ROOM_W, ROOM_D);
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            const gridCanvas = document.createElement('canvas');
+            gridCanvas.width = 512; gridCanvas.height = 512;
+            const ctx = gridCanvas.getContext('2d');
+            ctx.fillStyle = '#080818';
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.strokeStyle = '#1a1a3a';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 16; i++) {
+                const p = (i / 16) * 512;
+                ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, 512); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(512, p); ctx.stroke();
+            }
+            const gridTex = new THREE.CanvasTexture(gridCanvas);
+            gridTex.wrapS = gridTex.wrapT = THREE.RepeatWrapping;
+            gridTex.repeat.set(ROOM_W / 2, ROOM_D / 2);
+            floorMat.map = gridTex;
+            floorMat.needsUpdate = true;
+
+            const ceilingGeo = new THREE.PlaneGeometry(ROOM_W, ROOM_D);
+            const ceiling = new THREE.Mesh(ceilingGeo, new THREE.MeshStandardMaterial({ color: 0x0a0a1a, roughness: 1 }));
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.y = ROOM_H;
+            scene.add(ceiling);
+
+            const backWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+            backWall.position.set(0, ROOM_H / 2, -ROOM_D / 2);
+            scene.add(backWall);
+
+            const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+            frontWall.position.set(0, ROOM_H / 2, ROOM_D / 2);
+            frontWall.rotation.y = Math.PI;
+            scene.add(frontWall);
+
+            const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+            leftWall.position.set(-ROOM_W / 2, ROOM_H / 2, 0);
+            leftWall.rotation.y = Math.PI / 2;
+            scene.add(leftWall);
+
+            const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+            rightWall.position.set(ROOM_W / 2, ROOM_H / 2, 0);
+            rightWall.rotation.y = -Math.PI / 2;
+            scene.add(rightWall);
+
+            addWallDetails();
+        }
+
+        function addWallDetails() {
+            const stripMat = new THREE.MeshStandardMaterial({
+                color: 0x6c5ce7, emissive: 0x6c5ce7, emissiveIntensity: 0.3,
+                transparent: true, opacity: 0.6,
+            });
+            const stripGeo = new THREE.BoxGeometry(ROOM_W, 0.03, 0.02);
+
+            [2, 5, 8].forEach(y => {
+                const s1 = new THREE.Mesh(stripGeo, stripMat);
+                s1.position.set(0, y, -ROOM_D / 2 + 0.02);
+                scene.add(s1);
+                const s2 = new THREE.Mesh(stripGeo, stripMat);
+                s2.position.set(0, y, ROOM_D / 2 - 0.02);
+                scene.add(s2);
+            });
+
+            const vStripGeo = new THREE.BoxGeometry(0.02, ROOM_H, 0.02);
+            [-ROOM_W / 2 + 0.02, ROOM_W / 2 - 0.02].forEach(x => {
+                const s = new THREE.Mesh(vStripGeo, stripMat);
+                s.position.set(x, ROOM_H / 2, 0);
+                scene.add(s);
+            });
+        }
+
+        function createBench(x, z, rotation = 0) {
+            const group = new THREE.Group();
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.3, metalness: 0.8 });
+            const topMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.4, metalness: 0.3 });
+            const accentMat = new THREE.MeshStandardMaterial({ color: 0x6c5ce7, emissive: 0x6c5ce7, emissiveIntensity: 0.15 });
+
+            const topGeo = new THREE.BoxGeometry(4, 0.08, 1.2);
+            const top = new THREE.Mesh(topGeo, topMat);
+            top.position.y = 0.9;
+            top.castShadow = true;
+            top.receiveShadow = true;
+            group.add(top);
+
+            const edgeGeo = new THREE.BoxGeometry(4.04, 0.02, 1.24);
+            const edge = new THREE.Mesh(edgeGeo, accentMat);
+            edge.position.y = 0.95;
+            group.add(edge);
+
+            const legPositions = [[-1.8, -0.5], [1.8, -0.5], [-1.8, 0.5], [1.8, 0.5]];
+            legPositions.forEach(([lx, lz]) => {
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.9, 8), legMat);
+                leg.position.set(lx, 0.45, lz);
+                leg.castShadow = true;
+                group.add(leg);
+            });
+
+            const shelfMat = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.6, metalness: 0.4 });
+            const shelf = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.04, 1.0), shelfMat);
+            shelf.position.y = 0.4;
+            group.add(shelf);
+
+            group.position.set(x, 0, z);
+            group.rotation.y = rotation;
+            scene.add(group);
+
+            const box = new THREE.Box3().setFromObject(group);
+            interactables.push({ type: 'bench', box, group });
+
+            return group;
+        }
+
+        function createLabBenches() {
+            createBench(-5, -5, 0);
+            createBench(5, -5, 0);
+            createBench(-5, 5, 0);
+            createBench(5, 5, 0);
+        }
+
+        function createEquipment() {
+            const benchConfigs = [
+                { x: -5, z: -5, items: ['beakers', 'microscope', 'monitor'] },
+                { x: 5, z: -5, items: ['flask', 'bunsen', 'pipette'] },
+                { x: -5, z: 5, items: ['testtubes', 'centrifuge', 'reagent'] },
+                { x: 5, z: 5, items: ['distillation', 'monitor2', 'flask2'] },
+            ];
+            benchConfigs.forEach(cfg => {
+                const bench = createBenchEquipment(cfg.x, cfg.z, cfg.items);
+            });
+        }
+
+        function createBenchEquipment(bx, bz, items) {
+            const baseY = 0.98;
+            const glassMat = new THREE.MeshStandardMaterial({
+                color: 0x88ccff, transparent: true, opacity: 0.3, roughness: 0.1, metalness: 0.1,
+            });
+            const glassTinted = new THREE.MeshStandardMaterial({
+                color: 0x44ff88, transparent: true, opacity: 0.25, roughness: 0.1, metalness: 0.1,
+            });
+            const metalMat = new THREE.MeshStandardMaterial({ color: 0x666677, roughness: 0.2, metalness: 0.9 });
+            const darkMat = new THREE.MeshStandardMaterial({ color: 0x222233, roughness: 0.5, metalness: 0.4 });
+            const screenMat = new THREE.MeshStandardMaterial({
+                color: 0x0a1a2a, emissive: 0x00aaff, emissiveIntensity: 0.3,
+            });
+            const labelDefs = [];
+
+            if (items.includes('beakers')) {
+                const g = new THREE.Group();
+                for (let i = 0; i < 3; i++) {
+                    const b = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.06 + i * 0.02, 0.05 + i * 0.02, 0.14 + i * 0.04, 16),
+                        glassMat
+                    );
+                    b.position.set(-1.2 + i * 0.25, baseY + 0.07 + i * 0.02, -0.3);
+                    b.castShadow = true;
+                    g.add(b);
+
+                    const liquid = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.05 + i * 0.018, 0.04 + i * 0.018, 0.04 + i * 0.01, 16),
+                        new THREE.MeshStandardMaterial({
+                            color: [0x00aaff, 0xff6b9d, 0x44ff88][i], transparent: true, opacity: 0.6,
+                        })
+                    );
+                    liquid.position.set(-1.2 + i * 0.25, baseY + 0.04, -0.3);
+                    g.add(liquid);
+                }
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'BEAKERS', pos: new THREE.Vector3(bx - 1.0, baseY + 0.3, bz - 0.3) });
+            }
+
+            if (items.includes('flask') || items.includes('flask2')) {
+                const g = new THREE.Group();
+                const fOff = items.includes('flask2') ? 0.6 : -0.5;
+                const body = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.1, 16, 16), glassTinted
+                );
+                body.scale.y = 0.7;
+                body.position.set(fOff, baseY + 0.08, 0.2);
+                g.add(body);
+                const neck = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.025, 0.04, 0.12, 12), glassTinted
+                );
+                neck.position.set(fOff, baseY + 0.2, 0.2);
+                g.add(neck);
+                const liquid = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.08, 12, 12),
+                    new THREE.MeshStandardMaterial({ color: 0x6c5ce7, transparent: true, opacity: 0.5 })
+                );
+                liquid.scale.y = 0.5;
+                liquid.position.set(fOff, baseY + 0.05, 0.2);
+                g.add(liquid);
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'ERLENMEYER FLASK', pos: new THREE.Vector3(bx + fOff, baseY + 0.3, bz + 0.2) });
+            }
+
+            if (items.includes('microscope')) {
+                const g = new THREE.Group();
+                const base = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.03, 0.2), metalMat);
+                base.position.set(1.2, baseY + 0.015, 0);
+                g.add(base);
+                const arm = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.25, 0.04), metalMat);
+                arm.position.set(1.2, baseY + 0.15, -0.06);
+                g.add(arm);
+                const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.2, 12), darkMat);
+                tube.position.set(1.2, baseY + 0.22, 0);
+                tube.rotation.x = 0.3;
+                g.add(tube);
+                const objective = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.008, 0.06, 8), metalMat);
+                objective.position.set(1.2, baseY + 0.1, 0.02);
+                g.add(objective);
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'MICROSCOPE', pos: new THREE.Vector3(bx + 1.2, baseY + 0.4, bz) });
+            }
+
+            if (items.includes('monitor') || items.includes('monitor2')) {
+                const g = new THREE.Group();
+                const mOff = items.includes('monitor2') ? 0.8 : -0.8;
+                const screen = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.28, 0.02), screenMat);
+                screen.position.set(mOff, baseY + 0.3, -0.4);
+                g.add(screen);
+                const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.02, 0.15, 8), metalMat);
+                stand.position.set(mOff, baseY + 0.075, -0.4);
+                g.add(stand);
+                const sBase = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.015, 16), metalMat);
+                sBase.position.set(mOff, baseY + 0.008, -0.4);
+                g.add(sBase);
+
+                const borderMat = new THREE.MeshStandardMaterial({
+                    color: 0x6c5ce7, emissive: 0x6c5ce7, emissiveIntensity: 0.2,
+                });
+                const border = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.3, 0.015), borderMat);
+                border.position.set(mOff, baseY + 0.3, -0.405);
+                g.add(border);
+
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'DATA TERMINAL', pos: new THREE.Vector3(bx + mOff, baseY + 0.5, bz - 0.4) });
+            }
+
+            if (items.includes('bunsen')) {
+                const g = new THREE.Group();
+                const burner = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.15, 12), metalMat);
+                burner.position.set(-1.0, baseY + 0.075, 0.3);
+                g.add(burner);
+                const tube2 = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.12, 8), metalMat);
+                tube2.position.set(-1.0, baseY + 0.2, 0.3);
+                g.add(tube2);
+
+                const flameMat = new THREE.MeshBasicMaterial({ color: 0x4488ff, transparent: true, opacity: 0.7 });
+                const flame = new THREE.Mesh(new THREE.ConeGeometry(0.015, 0.06, 8), flameMat);
+                flame.position.set(-1.0, baseY + 0.28, 0.3);
+                g.add(flame);
+                const flame2 = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.04, 8),
+                    new THREE.MeshBasicMaterial({ color: 0x88ccff, transparent: true, opacity: 0.5 })
+                );
+                flame2.position.set(-1.0, baseY + 0.3, 0.3);
+                g.add(flame2);
+
+                const bLight = new THREE.PointLight(0x4488ff, 0.5, 3);
+                bLight.position.set(-1.0, baseY + 0.3, 0.3);
+                g.add(bLight);
+
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'BUNSEN BURNER', pos: new THREE.Vector3(bx - 1.0, baseY + 0.4, bz + 0.3) });
+            }
+
+            if (items.includes('pipette')) {
+                const g = new THREE.Group();
+                const stand = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.08), darkMat);
+                stand.position.set(0.5, baseY + 0.125, 0.3);
+                g.add(stand);
+                for (let i = 0; i < 3; i++) {
+                    const pip = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.2, 6), glassMat);
+                    pip.position.set(0.5, baseY + 0.3, 0.25 + i * 0.05);
+                    pip.rotation.z = 0.1;
+                    g.add(pip);
+                }
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'PIPETTE STAND', pos: new THREE.Vector3(bx + 0.5, baseY + 0.4, bz + 0.3) });
+            }
+
+            if (items.includes('testtubes')) {
+                const g = new THREE.Group();
+                const rack = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.03, 0.08), darkMat);
+                rack.position.set(-1.3, baseY + 0.1, 0.2);
+                g.add(rack);
+                const rackTop = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.03, 0.08), darkMat);
+                rackTop.position.set(-1.3, baseY + 0.2, 0.2);
+                g.add(rackTop);
+
+                const tubeColors = [0xff6b9d, 0x44ff88, 0x00aaff, 0xffaa00, 0x6c5ce7];
+                for (let i = 0; i < 5; i++) {
+                    const tube = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.01, 0.01, 0.16, 8),
+                        new THREE.MeshStandardMaterial({
+                            color: tubeColors[i], transparent: true, opacity: 0.35,
+                        })
+                    );
+                    tube.position.set(-1.38 + i * 0.045, baseY + 0.18, 0.2);
+                    g.add(tube);
+                    const liquid = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.008, 0.008, 0.05 + Math.random() * 0.04, 8),
+                        new THREE.MeshStandardMaterial({
+                            color: tubeColors[i], transparent: true, opacity: 0.6,
+                        })
+                    );
+                    liquid.position.set(-1.38 + i * 0.045, baseY + 0.1, 0.2);
+                    g.add(liquid);
+                }
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'TEST TUBE RACK', pos: new THREE.Vector3(bx - 1.3, baseY + 0.35, bz + 0.2) });
+            }
+
+            if (items.includes('centrifuge')) {
+                const g = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.15, 24), metalMat);
+                body.position.set(0.5, baseY + 0.075, -0.2);
+                g.add(body);
+                const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.02, 24), darkMat);
+                lid.position.set(0.5, baseY + 0.16, -0.2);
+                g.add(lid);
+                const control = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 0.01), screenMat);
+                control.position.set(0.5, baseY + 0.1, -0.06);
+                g.add(control);
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'CENTRIFUGE', pos: new THREE.Vector3(bx + 0.5, baseY + 0.3, bz - 0.2) });
+            }
+
+            if (items.includes('reagent')) {
+                const g = new THREE.Group();
+                for (let row = 0; row < 2; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        const bottle = new THREE.Mesh(
+                            new THREE.CylinderGeometry(0.03, 0.03, 0.1 + row * 0.03, 8),
+                            new THREE.MeshStandardMaterial({
+                                color: [0xff6b9d, 0x44ff88, 0x00aaff, 0xffaa00, 0x6c5ce7, 0xff4444, 0x44ffaa, 0xaaaaff][row * 4 + col],
+                                transparent: true, opacity: 0.4,
+                            })
+                        );
+                        bottle.position.set(-1.5 + col * 0.1, baseY + 0.06 + row * 0.015, 0.35);
+                        g.add(bottle);
+                    }
+                }
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'REAGENT SHELF', pos: new THREE.Vector3(bx - 1.2, baseY + 0.3, bz + 0.35) });
+            }
+
+            if (items.includes('distillation')) {
+                const g = new THREE.Group();
+                const flask = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), glassMat);
+                flask.scale.y = 0.8;
+                flask.position.set(1.2, baseY + 0.08, 0.2);
+                g.add(flask);
+                const tube1 = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.3, 8), glassMat);
+                tube1.position.set(1.2, baseY + 0.2, 0.2);
+                tube1.rotation.z = Math.PI / 4;
+                g.add(tube1);
+                const condenser = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.25, 8), glassMat);
+                condenser.position.set(1.35, baseY + 0.25, 0.1);
+                condenser.rotation.z = Math.PI / 3;
+                g.add(condenser);
+                const receiving = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.04, 0.03, 0.1, 12),
+                    new THREE.MeshStandardMaterial({ color: 0x44ff88, transparent: true, opacity: 0.35 })
+                );
+                receiving.position.set(1.48, baseY + 0.05, 0.0);
+                g.add(receiving);
+                g.position.set(bx, 0, bz);
+                scene.add(g);
+                labelDefs.push({ name: 'DISTILLATION APPARATUS', pos: new THREE.Vector3(bx + 1.3, baseY + 0.4, bz + 0.1) });
+            }
+
+            labelDefs.forEach(ld => {
+                interactables.push({
+                    type: 'label',
+                    name: ld.name,
+                    pos: ld.pos.clone(),
+                    distance: 2.5,
+                });
+            });
+        }
+
+        function setupControls() {
+            const startScreen = document.getElementById('start-screen');
+            const crosshair = document.getElementById('crosshair');
+
+            startScreen.addEventListener('click', () => {
+                renderer.domElement.requestPointerLock();
+            });
+
+            document.addEventListener('pointerlockchange', () => {
+                pointerLocked = !!document.pointerLockElement;
+                startScreen.style.display = pointerLocked ? 'none' : 'flex';
+                crosshair.style.display = pointerLocked ? 'block' : 'none';
+            });
+
+            document.addEventListener('mousemove', e => {
+                if (!pointerLocked) return;
+                yaw -= e.movementX * 0.002;
+                pitch -= e.movementY * 0.002;
+                pitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, pitch));
+                camera.rotation.y = yaw;
+                camera.rotation.x = pitch;
+            });
+
+            document.addEventListener('keydown', e => {
+                keys[e.code] = true;
+                keysDown.add(e.code);
+                updateKeyIndicators();
+                if (e.code === 'KeyL') toggleLights();
+            });
+            document.addEventListener('keyup', e => {
+                keys[e.code] = false;
+                keysDown.delete(e.code);
+                updateKeyIndicators();
+            });
+
+            document.getElementById('light-toggle').addEventListener('click', toggleLights);
+        }
+
+        function updateKeyIndicators() {
+            document.getElementById('key-a').classList.toggle('active', !!keys['KeyA']);
+            document.getElementById('key-w').classList.toggle('active', !!keys['KeyW']);
+            document.getElementById('key-s').classList.toggle('active', !!keys['KeyS']);
+            document.getElementById('key-d').classList.toggle('active', !!keys['KeyD']);
+            document.getElementById('key-shift').classList.toggle('active', !!keys['ShiftLeft'] || !!keys['ShiftRight']);
+            document.getElementById('key-space').classList.toggle('active', !!keys['Space']);
+        }
+
+        const colliders = [];
+        function updateColliders() {
+            colliders.length = 0;
+            const hw = ROOM_W / 2, hd = ROOM_D / 2;
+            colliders.push(new THREE.Box3(new THREE.Vector3(-hw, 0, -hd), new THREE.Vector3(hw, ROOM_H, hd)));
+            interactables.filter(i => i.type === 'bench').forEach(b => {
+                colliders.push(b.box);
+            });
+        }
+
+        function checkCollision(pos, radius = 0.3) {
+            for (const c of colliders) {
+                const nearest = new THREE.Vector3(
+                    Math.max(c.min.x, Math.min(pos.x, c.max.x)),
+                    Math.max(c.min.y, Math.min(pos.y, c.max.y)),
+                    Math.max(c.min.z, Math.min(pos.z, c.max.z))
+                );
+                const dist = pos.distanceTo(nearest);
+                if (dist < radius) return true;
+            }
+            return false;
+        }
+
+        let fpsFrames = 0, fpsTime = 0, fpsDisplay = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = Math.min(clock.getDelta(), 0.05);
+
+            if (pointerLocked) {
+                const speed = (keys['ShiftLeft'] || keys['ShiftRight']) ? MOVE_SPEED * RUN_MULTIPLIER : MOVE_SPEED;
+                const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+                const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+
+                const moveDir = new THREE.Vector3();
+                if (keys['KeyW']) moveDir.add(forward);
+                if (keys['KeyS']) moveDir.sub(forward);
+                if (keys['KeyA']) moveDir.sub(right);
+                if (keys['KeyD']) moveDir.add(right);
+                if (moveDir.length() > 0) moveDir.normalize();
+
+                velocity.x = moveDir.x * speed;
+                velocity.z = moveDir.z * speed;
+
+                if (keys['Space'] && onGround) {
+                    velocity.y = JUMP_FORCE;
+                    onGround = false;
+                }
+
+                velocity.y -= GRAVITY * dt;
+
+                const newPos = camera.position.clone();
+                newPos.x += velocity.x * dt;
+                if (!checkCollision(newPos)) {
+                    camera.position.x = newPos.x;
+                } else {
+                    velocity.x = 0;
+                }
+
+                const newPosZ = camera.position.clone();
+                newPosZ.z += velocity.z * dt;
+                if (!checkCollision(newPosZ)) {
+                    camera.position.z = newPosZ.z;
+                } else {
+                    velocity.z = 0;
+                }
+
+                camera.position.y += velocity.y * dt;
+                if (camera.position.y <= EYE_HEIGHT) {
+                    camera.position.y = EYE_HEIGHT;
+                    velocity.y = 0;
+                    onGround = true;
+                }
+
+                camera.position.x = Math.max(-ROOM_W / 2 + 0.5, Math.min(ROOM_W / 2 - 0.5, camera.position.x));
+                camera.position.z = Math.max(-ROOM_D / 2 + 0.5, Math.min(ROOM_D / 2 - 0.5, camera.position.z));
+
+                updateLabels();
+            }
+
+            updateHUD(dt);
+            renderer.render(scene, camera);
+        }
+
+        function updateLabels() {
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const tooltip = document.getElementById('label-tooltip');
+            let hit = false;
+
+            for (const item of interactables) {
+                if (item.type !== 'label') continue;
+                const dist = camera.position.distanceTo(item.pos);
+                if (dist < item.distance) {
+                    const dir = item.pos.clone().sub(camera.position).normalize();
+                    const camDir = new THREE.Vector3();
+                    camera.getWorldDirection(camDir);
+                    if (camDir.dot(dir) > 0.85) {
+                        tooltip.textContent = item.name;
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = '50%';
+                        tooltip.style.top = 'calc(50% - 60px)';
+                        tooltip.style.transform = 'translateX(-50%)';
+                        hit = true;
+                        break;
+                    }
+                }
+            }
+            if (!hit) tooltip.style.display = 'none';
+        }
+
+        function updateHUD(dt) {
+            fpsFrames++;
+            fpsTime += dt;
+            if (fpsTime >= 0.5) {
+                fpsDisplay = Math.round(fpsFrames / fpsTime);
+                fpsTime = 0;
+                fpsFrames = 0;
+            }
+            document.getElementById('fps').textContent = fpsDisplay;
+            document.getElementById('pos').textContent =
+                `${camera.position.x.toFixed(1)}, ${camera.position.y.toFixed(1)}, ${camera.position.z.toFixed(1)}`;
+        }
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        init();
+        updateColliders();
+    </script>
+</body>
+</html>
