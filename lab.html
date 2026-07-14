@@ -167,6 +167,21 @@
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
     </script>
 
+    <script>
+    (function() {
+        var ss = document.getElementById('start-screen');
+        var btn = document.getElementById('start-btn');
+        var ch = document.getElementById('crosshair');
+        function enter() {
+            if (ss) ss.style.display = 'none';
+            if (ch) ch.style.display = 'block';
+            try { document.querySelector('canvas').requestPointerLock(); } catch(e) {}
+        }
+        if (btn) btn.addEventListener('click', function(e) { e.stopPropagation(); enter(); });
+        if (ss) ss.addEventListener('click', enter);
+    })();
+    </script>
+
     <script type="module">
         import * as THREE from 'three';
 
