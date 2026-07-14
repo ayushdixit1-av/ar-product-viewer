@@ -1,0 +1,17 @@
+{
+    "name": "ar-product-viewer",
+    "version": "1.0.0",
+    "description": "AR Product Visualization - View products in your room",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "node server.js"
+    },
+    "dependencies": {
+        "blob-polyfill": "^9.0.20240710",
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "http-proxy-middleware": "^2.0.6",
+        "three": "^0.160.0"
+    }
+}

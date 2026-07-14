@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AR Product Viewer</title>
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Landing -->
+        <section id="landing" class="page active">
+            <div class="landing-bg"></div>
+            <div class="landing-content">
+                <div class="logo-glow">
+                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                        <rect width="56" height="56" rx="14" fill="url(#logoGrad)"/>
+                        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="56" y2="56"><stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
+                        <path d="M16 40V22L28 12L40 22V40H32V28H24V40H16Z" fill="white" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h1>See It In <span class="gradient-text">Your Space</span></h1>
+                <p class="landing-sub">Point your camera, place the product, and see how it looks in your room — true to size.</p>
+                <button class="btn btn-primary btn-xl pulse-glow" onclick="navigateTo('catalog')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Browse Products
+                </button>
+            </div>
+        </section>
+
+        <!-- Catalog -->
+        <section id="catalog" class="page">
+            <header class="page-header">
+                <button class="btn-back" onclick="navigateTo('landing')">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </button>
+                <h2>Products</h2>
+                <div class="header-spacer"></div>
+            </header>
+            <div class="catalog-filters">
+                <button class="filter-btn active" data-cat="all" onclick="filterProducts('all',this)">All</button>
+                <button class="filter-btn" data-cat="furniture" onclick="filterProducts('furniture',this)">Furniture</button>
+                <button class="filter-btn" data-cat="decor" onclick="filterProducts('decor',this)">Decor</button>
+                <button class="filter-btn" data-cat="lighting" onclick="filterProducts('lighting',this)">Lighting</button>
+            </div>
+            <div id="product-grid" class="product-grid"></div>
+        </section>
+
+        <!-- Product Detail -->
+        <section id="product-detail" class="page">
+            <header class="page-header">
+                <button class="btn-back" onclick="navigateTo('catalog')">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </button>
+                <h2 id="detail-title">Product</h2>
+                <div class="header-spacer"></div>
+            </header>
+            <div class="detail-content">
+                <div class="detail-3d-preview" id="detail-preview">
+                    <model-viewer
+                        id="detail-model-viewer"
+                        camera-controls
+                        auto-rotate
+                        rotation-per-second="20deg"
+                        camera-orbit="40deg 65deg 2.5m"
+                        min-camera-orbit="auto auto 1m"
+                        max-camera-orbit="auto auto 5m"
+                        shadow-intensity="0.8"
+                        shadow-softness="0.6"
+                        environment-image="neutral"
+                        exposure="1.0"
+                        interaction-prompt="auto"
+                        touch-action="pan-y"
+                        style="width:100%;height:100%;background:linear-gradient(180deg,#16161e,#1a1a2e);"
+                    ></model-viewer>
+                    <div class="preview-badge">3D Preview</div>
+                    <div class="preview-hint">Drag to rotate · Pinch to zoom</div>
+                </div>
+                <div class="detail-info">
+                    <div class="detail-price" id="detail-price"></div>
+                    <p class="detail-description" id="detail-description"></p>
+                    <div class="detail-specs" id="detail-specs"></div>
+                    <div class="detail-dimensions" id="detail-dimensions"></div>
+                    <button class="btn btn-primary btn-block btn-ar" onclick="launchAR()">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        View in Your Room
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- AR Viewer -->
+        <section id="ar-viewer" class="page">
+            <div class="ar-viewer-wrap">
+                <model-viewer
+                    id="ar-model-viewer"
+                    ar
+                    ar-modes="webxr scene-viewer quick-look"
+                    camera-controls
+                    touch-action="pan-y"
+                    shadow-intensity="1.5"
+                    shadow-softness="0.9"
+                    exposure="1.0"
+                    environment-image="neutral"
+                    auto-rotate
+                    rotation-per-second="0deg"
+                    camera-orbit="45deg 65deg 2m"
+                    min-camera-orbit="auto auto 0.5m"
+                    max-camera-orbit="Infinity 180deg 5m"
+                    interpolation-decay="100"
+                    style="width:100%;height:100%;background:#0E0E16;"
+                ></model-viewer>
+
+                <div class="ar-viewer-controls">
+                    <button class="ar-btn" onclick="exitAR()">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <span class="ar-product-name" id="ar-product-name"></span>
+                    <button class="ar-btn" onclick="arShare()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="ar-bottom-actions">
+                    <button class="ar-action-btn" onclick="arScreenshot()" title="Screenshot">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <span>Screenshot</span>
+                    </button>
+                    <button class="ar-action-btn ar-main-btn" onclick="arActivateNativeAR()" title="View in your room">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <span id="ar-main-label">View in Your Room</span>
+                    </button>
+                    <button class="ar-action-btn" onclick="toggleAutoRotate()" title="Auto-rotate">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
+                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                        </svg>
+                        <span>Rotate</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="js/app.js?v=2"></script>
+</body>
+</html>
