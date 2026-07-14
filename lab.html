@@ -165,6 +165,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
+    <div id="error-overlay" style="display:none;position:fixed;inset:0;z-index:200;background:#111;color:#ff4444;padding:40px;font-family:monospace;font-size:14px;overflow:auto;white-space:pre-wrap;"></div>
+
+    <script>
+    window.onerror = function(msg, src, line, col, err) {
+        var el = document.getElementById('error-overlay');
+        el.style.display = 'block';
+        el.textContent += msg + '\n' + src + ':' + line + ':' + col + '\n\n';
+    };
+    </script>
+
     <script>
     (function() {
         var ss = document.getElementById('start-screen');
@@ -181,6 +191,21 @@
     </script>
 
     <script>
+
+        var _OA = Object.assign;
+        Object.assign = function(target) {
+            if (target && target.isObject3D) {
+                for (var i = 1; i < arguments.length; i++) {
+                    var s = arguments[i];
+                    if (!s) continue;
+                    if (s.position) target.position.copy(s.position);
+                    if (s.rotation && s.rotation.isEuler) target.rotation.copy(s.rotation);
+                    if (s.scale && s.scale.isVector3) target.scale.copy(s.scale);
+                }
+                return target;
+            }
+            return _OA.apply(this, arguments);
+        };
 
         const ROOM_W = 24, ROOM_H = 11, ROOM_D = 24;
         const MOVE_SPEED = 6, RUN_MULTIPLIER = 2.2, JUMP_FORCE = 6, GRAVITY = 14;
@@ -935,8 +960,15 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        init();
-        updateColliders();
+        try {
+            if (typeof THREE === 'undefined') throw new Error('THREE not loaded');
+            init();
+            updateColliders();
+        } catch(e) {
+            var el = document.getElementById('error-overlay');
+            el.style.display = 'block';
+            el.textContent = 'Error: ' + e.message + '\n' + (e.stack || '');
+        }
     </script>
 </body>
 </html>
