@@ -218,6 +218,7 @@
         const keys = {};
         let yaw = 0, pitch = 0;
         let pointerLocked = false;
+        let labEntered = false;
         const raycaster = new THREE.Raycaster();
         const interactables = [];
 
@@ -725,7 +726,6 @@
             const ss = document.getElementById('start-screen');
             const ch = document.getElementById('crosshair');
             const btn = document.getElementById('start-btn');
-            let labEntered = false;
 
             function hideStartScreen() {
                 if (labEntered) return;
